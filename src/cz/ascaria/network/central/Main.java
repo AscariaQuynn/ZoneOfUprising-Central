@@ -58,7 +58,6 @@ public class Main {
     private ServerWrapper centralServer = new ServerWrapper(centralServerPort);
     private CentralServerListener centralServerListener;
 
-
     /**
      * Console for central server.
      */
