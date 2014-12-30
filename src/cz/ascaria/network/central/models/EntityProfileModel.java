@@ -41,11 +41,10 @@ public class EntityProfileModel extends BaseModel {
      */
     public EntityProfile fillEntityItems(EntityProfile entityProfile) {
         // Create sql string
-        String sql = "select ei.idEntityItem, i.idItem, i.name, i.class, i.price, i.properties, i.created,"
-                    + " ic.name as categoryName, ic.type as categoryType"
+        String sql = "select ei.idEntityItem, ei.properties as eiproperties,"
+                    + " i.idItem, i.name, i.type, i.path, i.mass, i.price, i.properties, i.created"
             + " from item i"
             + " inner join entityitem ei on ei.idItem = i.idItem"
-            + " inner join itemcategory ic on ic.idItemCategory = i.idItemCategory"
             + " where ei.idEntityProfile = ?"
             + " limit 99";
         // Create connection and prepared statement
@@ -56,13 +55,47 @@ public class EntityProfileModel extends BaseModel {
             // Execute query and create entity's items
             ResultSet rs = stmt.executeQuery();
             while(rs.next()) {
-                entityProfile.addItem(new EntityItem(rs));
+                EntityItem entityItem = new EntityItem(rs);
+                entityItem.getPropertyFloat("a", 0f);
+                entityProfile.addItem(entityItem);
             }
         } catch(Exception ex) {
             Main.LOG.log(Level.SEVERE, null, ex);
         }
-        // Returns entity with items
+        // Return entity with items
         return entityProfile;
+    }
+
+    /**
+     * Return entity items by type.
+     * @param type
+     * @return
+     */
+    public ArrayList<EntityItem> getEntityItemsByType(EntityItem.Type type) {
+        // Create array for entity items by type
+        ArrayList<EntityItem> entityItems = new ArrayList<EntityItem>();
+        // Create sql string
+        String sql = "select 0 as idEntityItem, \"\" as eiproperties, i.idItem, i.name, i.type, i.path, i.mass, i.price, i.properties, i.created"
+            + " from item i"
+            + " where i.type = ?"
+            + " limit 99";
+        // Create connection and prepared statement
+        try {
+            Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, type.name());
+            // Execute query and add entity items
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()) {
+                EntityItem entityItem = new EntityItem(rs);
+                entityItem.getPropertyFloat("a", 0f);
+                entityItems.add(entityItem);
+            }
+        } catch(Exception ex) {
+            Main.LOG.log(Level.SEVERE, null, ex);
+        }
+        // Return entity items
+        return entityItems;
     }
 
     /**

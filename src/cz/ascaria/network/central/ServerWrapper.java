@@ -13,6 +13,8 @@ import com.jme3.network.Network;
 import com.jme3.network.Server;
 import cz.ascaria.network.central.ServerStateListener.StopInfo;
 import cz.ascaria.network.central.profiles.UserProfile;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
@@ -57,6 +59,8 @@ public class ServerWrapper implements ServerStateListener {
         this.app = app;
         this.console = app.getConsole();
         this.executor2 = app.getExecutor2();
+        // Prepare for receiving messages
+        addServerStateListener(this);
     }
 
     /**
@@ -269,7 +273,7 @@ public class ServerWrapper implements ServerStateListener {
             @Override
             public void run() {
                 try {
-                    console.println("Creating Central Server at port " + port);
+                    //console.println("Creating Central Server at port " + port);
                     Server conn = Network.createServer(port);
                     for(ConnectionListener connectionListener : connectionListeners) {
                         conn.addConnectionListener(connectionListener);
@@ -320,13 +324,28 @@ public class ServerWrapper implements ServerStateListener {
     public void serverStarted(Server server) {
         this.server = server;
 
-        String localhost = "[unknown host]";
+        InetAddress[] allMyIps = null;
         try {
-            localhost = InetAddress.getLocalHost().toString();
+            allMyIps = InetAddress.getAllByName(InetAddress.getLocalHost().getCanonicalHostName());
         } catch (UnknownHostException ex) {
             Main.LOG.log(Level.SEVERE, null, ex);
         }
-        Console.sysprintln("Central Server started successfully at " + localhost + " port " + port);
+        console.println("Server started successfully on port " + port + ".");
+        console.println("Full list of IP addresses:");
+        if(null != allMyIps) {
+            for(int i = 0; i < allMyIps.length; i++) {
+                InetAddress inetAddress = allMyIps[i];
+                if(inetAddress instanceof Inet4Address) {
+                    console.println("    IPv4: " + inetAddress);
+                } else if(inetAddress instanceof Inet6Address) {
+                    console.println("    IPv6: " + inetAddress);
+                } else {
+                    console.println("    Unknown address type: " + inetAddress);
+                }
+            }
+        } else {
+            console.println("    No addresses were found.");
+        }
     }
 
     @Override

@@ -14,11 +14,30 @@ import cz.ascaria.network.central.profiles.EntityProfile;
 @Serializable
 public class EntityUpdater {
 
+    public enum UnloadType {
+        None("None"), // Do not unload
+        Silent("Silent"), // Entity should disappear
+        Explode("Explode"); // Entity should explode
+
+        private String unloadType;
+
+        UnloadType(String unloadType) {
+            this.unloadType = unloadType;
+        }
+
+        @Override
+        public String toString() {
+            return unloadType;
+        }
+    }
+
     private int idEntityProfile;
     private String name;
 
     private float hitPoints;
     private int experience;
+
+    private UnloadType unloadType;
 
     /**
      * Entity Updater.
@@ -36,6 +55,8 @@ public class EntityUpdater {
 
         this.hitPoints = entityProfile.getHitPoints();
         this.experience = entityProfile.getExperience();
+
+        this.unloadType = UnloadType.None;
     }
 
     public int getIdEntityProfile() {
@@ -47,15 +68,24 @@ public class EntityUpdater {
     }
 
     /**
-     * Should we destroy ship with explosion?
-     * @return
+     * Should we unload ship?
+     * @param unloadType
      */
-    public boolean shouldExplode() {
-        return hitPoints == 0f;
+    public void setUnloadType(UnloadType unloadType) {
+        this.unloadType = unloadType;
     }
 
     /**
-     * Set hit points for update.
+     * Should we unload ship?
+     * @param unloadType
+     * @return
+     */
+    public boolean isUnloadType(UnloadType unloadType) {
+        return this.unloadType == unloadType;
+    }
+
+    /**
+     * Set hit points for update. When hit points reaches zero, unload type explode is automatically set.
      * @param hitPoints
      * @throws IllegalArgumentException if hit points are negative, infinite or nan.
      */
@@ -64,6 +94,10 @@ public class EntityUpdater {
             throw new IllegalArgumentException("Hit Points should not be infinite, nor nan.");
         }
         this.hitPoints = Math.max(hitPoints, 0f);
+        // When hp reach zero, entity should automatically explode
+        if(this.hitPoints == 0f) {
+            unloadType = UnloadType.Explode;
+        }
     }
 
     /**
@@ -104,6 +138,8 @@ public class EntityUpdater {
         }
         hitPoints = entityUpdater.hitPoints;
         experience = entityUpdater.experience;
+
+        unloadType = entityUpdater.unloadType;
     }
 
     @Override

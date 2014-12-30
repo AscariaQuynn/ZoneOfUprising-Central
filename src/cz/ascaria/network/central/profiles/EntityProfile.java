@@ -34,7 +34,7 @@ public class EntityProfile implements Profile {
 
     private int experience = 0;
 
-    private LinkedList<EntityItem> items = new LinkedList<EntityItem>();
+    private LinkedList<EntityItem> entityItems = new LinkedList<EntityItem>();
 
     public EntityProfile() {
     }
@@ -62,15 +62,36 @@ public class EntityProfile implements Profile {
     }
 
     public void addItem(EntityItem item) {
-        items.add(item);
+        entityItems.add(item);
     }
 
     public void removeItem(EntityItem item) {
-        items.remove(item);
+        entityItems.remove(item);
     }
 
-    public LinkedList<EntityItem> getItems() {
-        return items;
+    public LinkedList<EntityItem> getEntityItems(EntityItem.Type type) {
+        if(null == type) {
+            throw new NullPointerException();
+        }
+        LinkedList<EntityItem> list = new LinkedList<EntityItem>();
+        for(EntityItem entityItem : entityItems) {
+            if(entityItem.isType(type)) {
+                list.add(entityItem);
+            }
+        }
+        return list;
+    }
+
+    public EntityItem getEntityItem(EntityItem.Type type) {
+        if(null == type) {
+            throw new NullPointerException();
+        }
+        for(EntityItem entityItem : entityItems) {
+            if(entityItem.isType(type)) {
+                return entityItem;
+            }
+        }
+        return null;
     }
 
     /**
@@ -115,7 +136,19 @@ public class EntityProfile implements Profile {
         return path;
     }
 
+    /**
+     * Returns mass of the entity.
+     * @return
+     */
     public float getMass() {
+        return mass;
+    }
+
+    /**
+     * Returns mass of the entity and all entity items combined.
+     * @return
+     */
+    public float getTotalMass() {
         return mass;
     }
 

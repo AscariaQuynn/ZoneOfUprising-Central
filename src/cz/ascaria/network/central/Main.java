@@ -15,6 +15,7 @@ import cz.ascaria.network.central.messages.AlertMessage;
 import cz.ascaria.network.central.messages.AuthUserProfileMessage;
 import cz.ascaria.network.central.messages.CentralMessagesRegistrator;
 import cz.ascaria.network.central.messages.CredentialsMessage;
+import cz.ascaria.network.central.messages.EntityItemsByTypeMessage;
 import cz.ascaria.network.central.messages.EntityProfileMessage;
 import cz.ascaria.network.central.messages.EntityUpdaterMessage;
 import cz.ascaria.network.central.messages.SelectEntityMessage;
@@ -137,6 +138,15 @@ public class Main {
     }
 
     /**
+     * Do user profile exist?
+     * @param userProfile
+     * @return
+     */
+    public boolean userProfileExist(HostedConnection source) {
+        return userProfiles.containsValue((UserProfile)source.getAttribute("userProfile"));
+    }
+
+    /**
      * Add new user profile.
      * @param conn
      * @param userProfile
@@ -166,6 +176,15 @@ public class Main {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns user profile by hosted connection.
+     * @param source
+     * @return
+     */
+    public UserProfile getUserProfile(HostedConnection source) {
+        return source.getAttribute("userProfile");
     }
 
 
@@ -332,7 +351,8 @@ public class Main {
                 WorldFleetMessage.class,
                 WorldProfileMessage.class,
                 ServerWorldsMessage.class,
-                SelectEntityMessage.class
+                SelectEntityMessage.class,
+                EntityItemsByTypeMessage.class
             );
         }
 
@@ -386,6 +406,8 @@ public class Main {
                         entityProfileMessage(source, (EntityProfileMessage)m);
                     } else if(m instanceof EntityUpdaterMessage) {
                         entityUpdaterMessage(source, (EntityUpdaterMessage)m);
+                    } else if(m instanceof EntityItemsByTypeMessage) {
+                        entityItemsByTypeMessage(source, (EntityItemsByTypeMessage)m);
                     } else if(m instanceof UserFleetMessage) {
                         userFleetMessage(source, (UserFleetMessage)m);
                     } else if(m instanceof WorldFleetMessage) {
@@ -557,6 +579,35 @@ public class Main {
             } catch(Exception ex) {
                 Main.LOG.log(Level.SEVERE, null, ex);
                 console.println(ex.getLocalizedMessage());
+            }
+        }
+
+        /**
+         * Client requests entity items by type.
+         * @param source
+         * @param m
+         */
+        public void entityItemsByTypeMessage(HostedConnection source, EntityItemsByTypeMessage m) {
+            try {
+                if(null == m.type) {
+                    throw new NullPointerException("EntityItem.Type is null.");
+                }
+                // Check if user profile is already logged in
+                UserProfile userProfile = getUserProfile(source);
+                if(!userProfileExist(userProfile)) {
+                    console.println("User profile does not exist, kicking...");
+                    source.close("User profile for source " + source.getId() + " does not exist.");
+                    return;
+                }
+                m.items = entityProfileModel.getEntityItemsByType(m.type);
+                // Send entity items to user
+                console.println("Sending entity items of type " + m.type + " to user " + userProfile + ".");
+                source.send(m);
+            } catch(Exception ex) {
+                Main.LOG.log(Level.SEVERE, null, ex);
+                console.println(ex.getLocalizedMessage());
+                m.error = ex.getLocalizedMessage();
+                source.send(m);
             }
         }
 

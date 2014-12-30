@@ -1,0 +1,25 @@
+XII 30, 2014 7:48:05 ODP. cz.ascaria.network.central.ServerWrapper$1 run
+SEVERE: null
+com.jme3.network.kernel.KernelException: Error hosting:0.0.0.0/0.0.0.0:6540
+	at com.jme3.network.kernel.tcp.SelectorKernel.initialize(SelectorKernel.java:97)
+	at com.jme3.network.base.KernelAdapter.initialize(KernelAdapter.java:100)
+	at com.jme3.network.base.DefaultServer.start(DefaultServer.java:157)
+	at cz.ascaria.network.central.ServerWrapper$1.run(ServerWrapper.java:288)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:178)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:292)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:744)
+Caused by: java.net.BindException: Address already in use: bind
+	at sun.nio.ch.Net.bind0(Native Method)
+	at sun.nio.ch.Net.bind(Net.java:444)
+	at sun.nio.ch.Net.bind(Net.java:436)
+	at sun.nio.ch.ServerSocketChannelImpl.bind(ServerSocketChannelImpl.java:214)
+	at sun.nio.ch.ServerSocketAdaptor.bind(ServerSocketAdaptor.java:74)
+	at sun.nio.ch.ServerSocketAdaptor.bind(ServerSocketAdaptor.java:67)
+	at com.jme3.network.kernel.tcp.SelectorKernel$SelectorThread.connect(SelectorKernel.java:250)
+	at com.jme3.network.kernel.tcp.SelectorKernel.initialize(SelectorKernel.java:94)
+	... 10 more
+

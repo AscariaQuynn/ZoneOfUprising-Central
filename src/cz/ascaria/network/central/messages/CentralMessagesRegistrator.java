@@ -4,6 +4,7 @@
  */
 package cz.ascaria.network.central.messages;
 
+import com.jme3.math.Ray;
 import com.jme3.network.serializing.Serializer;
 import cz.ascaria.network.central.profiles.EntityItem;
 import cz.ascaria.network.central.profiles.EntityProfile;
@@ -11,6 +12,8 @@ import cz.ascaria.network.central.profiles.ServerProfile;
 import cz.ascaria.network.central.profiles.UserProfile;
 import cz.ascaria.network.central.profiles.WorldProfile;
 import cz.ascaria.network.central.profiles.updaters.EntityUpdater;
+import cz.ascaria.network.central.serializers.DestructibleSerializer;
+import cz.ascaria.network.central.utils.PropertiesHelper;
 
 /**
  *
@@ -41,6 +44,9 @@ public class CentralMessagesRegistrator {
         Serializer.registerClass(UserProfileMessage.class);
         Serializer.registerClass(UserFleetMessage.class);
 
+        // Items
+        Serializer.registerClass(EntityItemsByTypeMessage.class);
+
         // Misc. classes
         Serializer.registerClasses(
             UserProfile.class,
@@ -50,5 +56,8 @@ public class CentralMessagesRegistrator {
             EntityUpdater.class,
             EntityItem.class
         );
+
+        // Destructible serializers
+        Serializer.registerClass(PropertiesHelper.class, new DestructibleSerializer());
     }
 }
